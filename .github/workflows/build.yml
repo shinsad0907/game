@@ -26,24 +26,133 @@ jobs:
         
     - name: Install dependencies
       run: |
+        Write-Host "=== Upgrading pip ==="
+        pip install --upgrade pip
+        
+        Write-Host "`n=== Installing PyInstaller ==="
         pip install pyinstaller
+        
+        Write-Host "`n=== Installing dependencies from requirements.txt ==="
         if (Test-Path requirements.txt) {
+          Write-Host "Found requirements.txt, installing..."
           pip install -r requirements.txt
+          Write-Host "[SUCCESS] Installed from requirements.txt"
         } else {
-          echo "No requirements.txt found, skipping..."
+          Write-Host "[ERROR] requirements.txt NOT FOUND!"
+          Write-Host "Installing core dependencies manually..."
+          pip install requests==2.32.4 selenium==4.32.0 pyperclip==1.9.0 supabase==0.4.0 cryptography==42.0.7 python-dateutil==2.9.0.post0 psutil==7.0.0 pytesseract==0.3.13 Eel==0.18.1 curl_cffi==0.13.0 selenium-wire==5.1.0 blinker==1.7.0 pyautogui==0.9.54 Pillow
         }
+        
+        Write-Host "`n=== Verifying critical modules ==="
+        python -c "import requests; print('[OK] requests')" 
+        python -c "import selenium; print('[OK] selenium')"
+        python -c "import pytesseract; print('[OK] pytesseract')"
+        python -c "import PIL; print('[OK] PIL')"
+        python -c "import pyperclip; print('[OK] pyperclip')"
+        python -c "import supabase; print('[OK] supabase')"
+        python -c "import Eel; print('[OK] Eel')"
+        
+        Write-Host "`n=== All dependencies installed successfully! ==="
       shell: powershell
       
     - name: Build application (folder mode)
       run: |
+        Write-Host "=== Starting PyInstaller Build ==="
+        
         # Kiem tra xem co file casino.ico trong folder logo khong
-        if (Test-Path "web/logo/casino.ico") {
-          Write-Host "[SUCCESS] Found casino.ico in logo folder, building with icon..."
-          pyinstaller --onedir --windowed --icon="web/logo/casino.ico" --name="Game" app.py
+        $iconPath = "web/logo/casino.ico"
+        $hasIcon = Test-Path $iconPath
+        
+        if ($hasIcon) {
+          Write-Host "[SUCCESS] Found casino.ico in logo folder"
         } else {
-          Write-Host "[WARNING] casino.ico not found in logo folder, building without icon..."
-          pyinstaller --onedir --windowed --name="Game" app.py
+          Write-Host "[WARNING] casino.ico not found in logo folder"
         }
+        
+        Write-Host "`n=== Building with hidden imports ==="
+        
+        # Build command với đầy đủ hidden imports
+        if ($hasIcon) {
+          pyinstaller --onedir --windowed `
+            --icon="web/logo/casino.ico" `
+            --hidden-import=requests `
+            --hidden-import=urllib3 `
+            --hidden-import=certifi `
+            --hidden-import=charset_normalizer `
+            --hidden-import=idna `
+            --hidden-import=selenium `
+            --hidden-import=selenium.webdriver `
+            --hidden-import=selenium.webdriver.common `
+            --hidden-import=selenium.webdriver.common.by `
+            --hidden-import=selenium.webdriver.support `
+            --hidden-import=selenium.webdriver.support.ui `
+            --hidden-import=selenium.webdriver.support.expected_conditions `
+            --hidden-import=seleniumwire `
+            --hidden-import=pytesseract `
+            --hidden-import=PIL `
+            --hidden-import=PIL.Image `
+            --hidden-import=pyperclip `
+            --hidden-import=supabase `
+            --hidden-import=cryptography `
+            --hidden-import=cryptography.fernet `
+            --hidden-import=cryptography.hazmat `
+            --hidden-import=cryptography.hazmat.primitives `
+            --hidden-import=psutil `
+            --hidden-import=Eel `
+            --hidden-import=eel `
+            --hidden-import=curl_cffi `
+            --hidden-import=blinker `
+            --hidden-import=pyautogui `
+            --hidden-import=dateutil `
+            --hidden-import=dateutil.parser `
+            --collect-all requests `
+            --collect-all selenium `
+            --collect-all Eel `
+            --name="Game" app.py
+        } else {
+          pyinstaller --onedir --windowed `
+            --hidden-import=requests `
+            --hidden-import=urllib3 `
+            --hidden-import=certifi `
+            --hidden-import=charset_normalizer `
+            --hidden-import=idna `
+            --hidden-import=selenium `
+            --hidden-import=selenium.webdriver `
+            --hidden-import=selenium.webdriver.common `
+            --hidden-import=selenium.webdriver.common.by `
+            --hidden-import=selenium.webdriver.support `
+            --hidden-import=selenium.webdriver.support.ui `
+            --hidden-import=selenium.webdriver.support.expected_conditions `
+            --hidden-import=seleniumwire `
+            --hidden-import=pytesseract `
+            --hidden-import=PIL `
+            --hidden-import=PIL.Image `
+            --hidden-import=pyperclip `
+            --hidden-import=supabase `
+            --hidden-import=cryptography `
+            --hidden-import=cryptography.fernet `
+            --hidden-import=cryptography.hazmat `
+            --hidden-import=cryptography.hazmat.primitives `
+            --hidden-import=psutil `
+            --hidden-import=Eel `
+            --hidden-import=eel `
+            --hidden-import=curl_cffi `
+            --hidden-import=blinker `
+            --hidden-import=pyautogui `
+            --hidden-import=dateutil `
+            --hidden-import=dateutil.parser `
+            --collect-all requests `
+            --collect-all selenium `
+            --collect-all Eel `
+            --name="Game" app.py
+        }
+        
+        if ($LASTEXITCODE -ne 0) {
+          Write-Host "[ERROR] PyInstaller build FAILED!"
+          exit 1
+        }
+        
+        Write-Host "`n[SUCCESS] PyInstaller build completed successfully!"
       shell: powershell
       
     - name: Auto-detect and copy folders to _internal
@@ -362,6 +471,7 @@ jobs:
           - ✨ Tự động copy tất cả folder vào _internal
           - 🎨 EXE file có icon Facebook (từ thư mục logo)
           - 📁 version_client.json được lưu trong thư mục data
+          - 🔧 Fixed: Đã thêm đầy đủ hidden imports cho PyInstaller
           
           ### Cài đặt
           1. Tải file ZIP
@@ -469,6 +579,7 @@ jobs:
           - 📦 **Complete package**: Đảm bảo exe có thể truy cập tất cả resource folder
           - 🎨 **Icon support**: EXE file có icon Facebook (từ thư mục logo)
           - 📁 **Data organization**: version_client.json được lưu trong thư mục data
+          - 🔧 **Fixed imports**: Đã sửa lỗi missing modules bằng hidden imports
           
           ### Tải xuống
           - `MyApp-windows.zip` - Phiên bản Windows với icon
@@ -479,6 +590,7 @@ jobs:
           - Thư mục `internal/` và `data/` để lưu trữ
           - **Tất cả folder từ source** đã được copy vào `_internal/`
           - **Icon Facebook** được gắn vào EXE file (từ thư mục logo)
+          - **Đầy đủ Python modules** đã được đóng gói
           
           ### Cấu trúc thư mục
           ```
@@ -512,5 +624,3 @@ jobs:
           Sử dụng endpoint: `https://api.github.com/repos/${{ github.repository }}/releases/latest`
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  
