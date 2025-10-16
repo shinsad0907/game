@@ -13,3 +13,4 @@ Eel == 0.18.1
 curl_cffi == 0.13.0
 selenium-wire == 5.1.0
 blinker==1.7.0
+pyautogui==0.9.54
