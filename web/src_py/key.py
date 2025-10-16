@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
-import base64
 import os
-import json
 import supabase
 import subprocess, platform, os, uuid, winreg
 

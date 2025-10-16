@@ -1,8 +1,4 @@
 import eel
-import random
-import string
-import time
-import threading
 from tkinter import filedialog
 import tkinter as tk
 import sys
