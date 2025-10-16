@@ -27,32 +27,33 @@ jobs:
     - name: Install dependencies
       run: |
         Write-Host "=== Upgrading pip ==="
-        pip install --upgrade pip
-        
+        python -m pip install --upgrade pip
+
         Write-Host "`n=== Installing PyInstaller ==="
         pip install pyinstaller
-        
+
         Write-Host "`n=== Installing dependencies from requirements.txt ==="
-        if (Test-Path requirements.txt) {
-          Write-Host "Found requirements.txt, installing..."
-          pip install -r requirements.txt
+        $reqPath = Join-Path $PWD "requirements.txt"
+
+        if (Test-Path $reqPath) {
+          Write-Host "✅ Found requirements.txt at $reqPath"
+          pip install -r $reqPath
           Write-Host "[SUCCESS] Installed from requirements.txt"
         } else {
-          Write-Host "[ERROR] requirements.txt NOT FOUND!"
-          Write-Host "Installing core dependencies manually..."
-          pip install requests==2.32.4 selenium==4.32.0 pyperclip==1.9.0 supabase==0.4.0 cryptography==42.0.7 python-dateutil==2.9.0.post0 psutil==7.0.0 pytesseract==0.3.13 Eel==0.18.1 curl_cffi==0.13.0 selenium-wire==5.1.0 blinker==1.7.0 pyautogui==0.9.54 Pillow
+          Write-Host "[⚠️ WARNING] requirements.txt not found, installing manually..."
+          pip install requests==2.32.3 selenium==4.32.0 supabase==0.4.0 eel==0.18.1 selenium-wire==5.1.0 blinker==1.7.0 pytesseract==0.3.13 pyautogui==0.9.54 pillow==10.4.0
+          Write-Host "[SUCCESS] Installed fallback dependencies manually."
         }
-        
+
         Write-Host "`n=== Verifying critical modules ==="
-        python -c "import requests; print('[OK] requests')" 
+        python -c "import requests; print('[OK] requests')"
         python -c "import selenium; print('[OK] selenium')"
+        python -c "import eel; print('[OK] eel')"
         python -c "import pytesseract; print('[OK] pytesseract')"
         python -c "import PIL; print('[OK] PIL')"
-        python -c "import pyperclip; print('[OK] pyperclip')"
+        python -c "import pyautogui; print('[OK] pyautogui')"
         python -c "import supabase; print('[OK] supabase')"
-        python -c "import eel; print('[OK] eel')"
-        
-        Write-Host "`n=== All dependencies installed successfully! ==="
+        python -c "import seleniumwire; print('[OK] seleniumwire')"
       shell: powershell
       
     - name: Build application (folder mode)
