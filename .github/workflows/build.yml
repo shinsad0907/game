@@ -50,7 +50,7 @@ jobs:
         python -c "import PIL; print('[OK] PIL')"
         python -c "import pyperclip; print('[OK] pyperclip')"
         python -c "import supabase; print('[OK] supabase')"
-        python -c "import Eel; print('[OK] Eel')"
+        python -c "import eel; print('[OK] eel')"
         
         Write-Host "`n=== All dependencies installed successfully! ==="
       shell: powershell
@@ -98,7 +98,6 @@ jobs:
             --hidden-import=cryptography.hazmat `
             --hidden-import=cryptography.hazmat.primitives `
             --hidden-import=psutil `
-            --hidden-import=Eel `
             --hidden-import=eel `
             --hidden-import=curl_cffi `
             --hidden-import=blinker `
@@ -107,7 +106,7 @@ jobs:
             --hidden-import=dateutil.parser `
             --collect-all requests `
             --collect-all selenium `
-            --collect-all Eel `
+            --collect-all eel `
             --name="Game" app.py
         } else {
           pyinstaller --onedir --windowed `
@@ -134,7 +133,6 @@ jobs:
             --hidden-import=cryptography.hazmat `
             --hidden-import=cryptography.hazmat.primitives `
             --hidden-import=psutil `
-            --hidden-import=Eel `
             --hidden-import=eel `
             --hidden-import=curl_cffi `
             --hidden-import=blinker `
@@ -143,7 +141,7 @@ jobs:
             --hidden-import=dateutil.parser `
             --collect-all requests `
             --collect-all selenium `
-            --collect-all Eel `
+            --collect-all eel `
             --name="Game" app.py
         }
         
