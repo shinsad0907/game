@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Registration Tool Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <h1><i class="fas fa-gamepad"></i> Game Registration</h1>
+            <p>Tự động đăng ký tài khoản</p>
+        </div>
+        <div class="nav">
+            <div class="nav-item active">
+                <i class="fas fa-list"></i>
+                <span>Đăng ký tài khoản</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="page-title">Quản lý tài khoản Game</div>
+            <div class="stats">
+                <div class="stat-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Thành công: <strong id="success-count">0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-times-circle"></i>
+                    <span>Thất bại: <strong id="failed-count">0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-list"></i>
+                    <span>Tổng: <strong id="total-count">0</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-bolt"></i>
+                    Thao tác nhanh
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="control-bar">
+                    <button class="btn btn-primary" onclick="openSettingsModal()">
+                        <i class="fas fa-cog"></i>
+                        Cấu hình đăng ký
+                    </button>
+                    <button class="btn btn-success" onclick="startRegistration()">
+                        <i class="fas fa-play"></i>
+                        Bắt đầu đăng ký
+                    </button>
+                    <button class="btn btn-danger" onclick="stopRegistration()">
+                        <i class="fas fa-stop"></i>
+                        Dừng
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportResults()">
+                        <i class="fas fa-file-export"></i>
+                        Export
+                    </button>
+                    <button class="btn btn-danger" onclick="clearTable()">
+                        <i class="fas fa-trash"></i>
+                        Xóa bảng
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="table-container">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-table"></i>
+                    Kết quả đăng ký
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Cổng</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>SĐT</th>
+                            <th>Email</th>
+                            <th>Họ tên</th>
+                            <th>TK Ngân hàng</th>
+                            <th>Mã rút tiền</th>
+                            <th>Proxy</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-tbody">
+                        <tr>
+                            <td colspan="12">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <div>Chưa có dữ liệu. Nhấn "Bắt đầu đăng ký" để bắt đầu.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-cog"></i> Cấu hình đăng ký tài khoản
+                </div>
+                <button class="btn-close" onclick="closeSettingsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-grid">
+                    <!-- Account Info Section - Full Width -->
+                    <div class="settings-section" style="grid-column: 1 / -1;">
+                        <div class="settings-section-title">
+                            <i class="fas fa-users"></i> Thông tin tài khoản
+                        </div>
+                        
+                        <!-- Account Input Mode -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Nhập danh sách tài khoản (mỗi dòng 1 tài khoản)
+                                <span style="color: #ef4444; font-size: 12px; display: block; margin-top: 4px;">
+                                    <i class="fas fa-exclamation-circle"></i> 
+                                    Định dạng: username|password|fullname|phone|email|bank_account|account_number|withdraw_code|proxy
+                                </span>
+                            </label>
+                            <textarea 
+                                class="proxy-textarea" 
+                                id="multiple-accounts-textarea" 
+                                placeholder="user1|Pass123|Nguyễn Văn A|0901234567|user1@gmail.com|MB Bank|0123456789|123456|host1:port1:user1:pass1&#10;user2|Pass456|Trần Thị B|0907654321|user2@gmail.com|VCB|9876543210|654321|host2:port2:user2:pass2&#10;user3|Pass789|Lê Văn C|0909876543|user3@gmail.com|TCB|1122334455|999999|host3:port3:user3:pass3"
+                                style="min-height: 180px; font-family: 'Courier New', monospace; font-size: 13px;"
+                                oninput="updateAccountPreview()"
+                            ></textarea>
+                            <div class="info-text" style="display: flex; align-items: center; justify-content: space-between;">
+                                <span>
+                                    <i class="fas fa-info-circle"></i>
+                                    Đã nhập <strong id="account-count">0</strong> tài khoản
+                                </span>
+                                <button class="btn btn-secondary btn-sm" onclick="previewAccounts()">
+                                    <i class="fas fa-eye"></i> Xem trước & Kiểm tra
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Preview Table -->
+                        <div id="account-preview-container" style="display: none; margin-top: 16px;">
+                            <div class="settings-section-title" style="margin-bottom: 12px;">
+                                <i class="fas fa-check-circle"></i> Danh sách tài khoản đã nhập
+                                <span style="font-size: 12px; font-weight: normal; color: #6b7280; margin-left: 8px;">
+                                    (<span id="valid-account-count">0</span> hợp lệ / <span id="invalid-account-count">0</span> lỗi)
+                                </span>
+                            </div>
+                            <div style="max-height: 400px; overflow: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                <table class="data-table" style="margin: 0;">
+                                    <thead style="position: sticky; top: 0; background: white; z-index: 10;">
+                                        <tr>
+                                            <th style="width: 50px;">STT</th>
+                                            <th>Username</th>
+                                            <th>Password</th>
+                                            <th>Họ tên</th>
+                                            <th>SĐT</th>
+                                            <th>Email</th>
+                                            <th>NH</th>
+                                            <th>STK</th>
+                                            <th>Mã rút</th>
+                                            <th>Proxy</th>
+                                            <th style="width: 100px;">Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="account-preview-tbody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Ports Section -->
+                    <div class="settings-section">
+                        <div class="settings-section-title">
+                            <i class="fas fa-server"></i> Cổng game
+                        </div>
+                        <button class="btn btn-secondary btn-sm" style="width: 100%;" onclick="openPortModal()">
+                            <i class="fas fa-server"></i>
+                            Chọn cổng game (<span id="selected-ports-count">0</span> đã chọn)
+                        </button>
+                    </div>
+
+                    <!-- Tesseract Path -->
+                    <div class="settings-section">
+                        <div class="settings-section-title">
+                            <i class="fas fa-file-code"></i> Tesseract OCR
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-input" id="tesseract-path" readonly placeholder="Tự động tìm kiếm...">
+                            <button class="btn btn-secondary btn-sm" onclick="selectTesseractPath()" title="Chọn tesseract.exe">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- <div class="settings-section">
+                        <div class="settings-section-title">
+                            <i class="fab fa-firefox"></i> Firefox Browser
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-input" id="firefox-path" readonly placeholder="Tự động tìm kiếm...">
+                            <button class="btn btn-secondary btn-sm" onclick="selectFirefoxPath()" title="Chọn firefox.exe">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-section-title">
+                            <i class="fab fa-firefox"></i> Geckodriver
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-input" id="geckodriver-path" readonly placeholder="Bắt buộc chọn thủ công">
+                            <button class="btn btn-secondary btn-sm" onclick="selectGeckodriverPath()" title="Chọn geckodriver.exe">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSettingsModal()">
+                    <i class="fas fa-times"></i> Đóng
+                </button>
+                <button class="btn btn-primary" onclick="saveSettings()">
+                    <i class="fas fa-save"></i> Lưu cấu hình
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Port Selection Modal -->
+    <div class="modal" id="port-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title">Chọn cổng game</div>
+                <button class="btn-close" onclick="closePortModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="port-grid" id="port-grid">
+                    <!-- Generated by JS -->
+                </div>
+                <div class="info-text" style="margin-top: 16px;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Đã chọn <strong id="modal-selected-count">0</strong> cổng</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePortModal()">Đóng</button>
+                <button class="btn btn-primary" onclick="savePortSelection()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proxy Management Modal -->
+    <div class="modal" id="proxy-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title">Quản lý Proxy</div>
+                <button class="btn-close" onclick="closeProxyModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nhập danh sách proxy (mỗi dòng 1 proxy)</label>
+                    <textarea class="proxy-textarea" id="proxy-textarea" placeholder="host:port:user:pass&#10;192.168.1.1:8080:user1:pass1&#10;192.168.1.2:8080:user2:pass2"></textarea>
+                    <div class="info-text">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Định dạng: host:port:user:pass</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Proxy đã thêm (<span id="proxy-list-count">0</span>)</label>
+                    <div class="proxy-list" id="proxy-list">
+                        <div style="text-align: center; color: #6b7280; padding: 20px;">
+                            Chưa có proxy nào
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProxyModal()">Đóng</button>
+                <button class="btn btn-primary" onclick="saveProxyList()">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/eel.js"></script>
+    <script src="src_js/main.js"></script>
+</body>
+</html>
