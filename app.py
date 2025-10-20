@@ -1,41 +1,10 @@
-# ==========================================
-# 🔧 Force imports to ensure PyInstaller bundles everything
-# ==========================================
-import requests
-import urllib3
-import idna
-import chardet
-import certifi
-import pytesseract
-import tkinter
-from tkinter import filedialog
-from PIL import Image
-
-# ==========================================
-# 📦 Standard imports
-# ==========================================
-import os
-import sys
-import json
-import time
-import uuid
-import random
-import threading
-import subprocess
-import platform
-from pathlib import Path
-from datetime import datetime, timezone
-
 import eel
-import pyautogui
-import supabase
-from seleniumwire import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
+from tkinter import filedialog
+import tkinter as tk
+import sys
+from pathlib import Path
+import json
+import os
 from web.src_py.run_reg import RegistrationThread
 from web.src_py.key import Check_key
 # Initialize Eel

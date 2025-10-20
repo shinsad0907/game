@@ -7,9 +7,10 @@ function initializePorts() {
     const portGrid = document.getElementById('port-grid');
     
     const ports = [
-        { id: 1, name: 'sasa2.君8866' },
-        { id: 2, name: '78win9.pro' },
+        { id: 1, name: 'new88ok1.com' },
+        { id: 2, name: 'f8beta2.com' },
         { id: 3, name: 'shbet800.com' },
+        { id: 4, name: 'mb663.pro' },
     ];
     
     ports.forEach(port => {
@@ -341,11 +342,112 @@ function stopRegistration() {
 
 function exportResults() {
     const tbody = document.getElementById('results-tbody');
+    
+    // Kiểm tra có dữ liệu không
     if (tbody.children[0]?.children.length === 1) {
         alert('⚠️ Không có dữ liệu để export!');
         return;
     }
-    alert('📊 Chức năng export đang được phát triển!');
+    
+    // Lấy tất cả các dòng dữ liệu
+    const rows = tbody.querySelectorAll('tr');
+    
+    if (rows.length === 0) {
+        alert('⚠️ Không có dữ liệu để export!');
+        return;
+    }
+    
+    // Tạo mảng dữ liệu CSV
+    const csvData = [];
+    
+    // Thêm header
+    const headers = [
+        'STT',
+        'Cổng',
+        'Username',
+        'Password',
+        'SĐT',
+        'Email',
+        'Họ tên',
+        'TK Ngân hàng',
+        'Mã rút tiền',
+        'Proxy',
+        'Trạng thái'
+    ];
+    csvData.push(headers.join(','));
+    
+    // Thêm dữ liệu từng dòng
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        
+        // Bỏ qua nếu là dòng empty state
+        if (cells.length <= 1) return;
+        
+        const rowData = [];
+        
+        // Lấy dữ liệu từ 11 cột đầu (bỏ cột "Thao tác")
+        for (let i = 0; i < 11; i++) {
+            let cellText = cells[i]?.textContent.trim() || '';
+            
+            // Nếu là cột trạng thái, lấy text từ badge
+            if (i === 10) {
+                const badge = cells[i]?.querySelector('.badge');
+                cellText = badge ? badge.textContent.trim() : cellText;
+            }
+            
+            // Escape dấu phзапу và xuống dòng
+            cellText = cellText.replace(/"/g, '""');
+            
+            // Wrap trong quotes nếu có dấu phẩy
+            if (cellText.includes(',') || cellText.includes('\n') || cellText.includes('"')) {
+                cellText = `"${cellText}"`;
+            }
+            
+            rowData.push(cellText);
+        }
+        
+        csvData.push(rowData.join(','));
+    });
+    
+    // Tạo CSV string
+    const csvString = csvData.join('\n');
+    
+    // Thêm BOM để Excel hiển thị đúng tiếng Việt
+    const BOM = '\uFEFF';
+    const csvContent = BOM + csvString;
+    
+    // Tạo Blob và download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    // Tạo tên file với timestamp
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const filename = `ket-qua-dang-ky_${timestamp}.csv`;
+    
+    // Download file
+    if (navigator.msSaveBlob) {
+        // IE 10+
+        navigator.msSaveBlob(blob, filename);
+    } else {
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    // Hiển thị thông báo thành công
+    const totalRows = rows.length;
+    const successCount = document.getElementById('success-count').textContent;
+    const failedCount = document.getElementById('failed-count').textContent;
+    
+    alert(`✅ ĐÃ EXPORT THÀNH CÔNG!\n\n` +
+          `📁 File: ${filename}\n` +
+          `📊 Tổng số: ${totalRows} tài khoản\n` +
+          `✓ Thành công: ${successCount}\n` +
+          `✗ Thất bại: ${failedCount}`);
 }
 
 function clearTable() {

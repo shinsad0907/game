@@ -14,6 +14,9 @@ if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
 import shbet
+import new88ok1
+import f8beta2
+import mb663
 
 class RegistrationThread:
     def __init__(self, config):
@@ -27,9 +30,10 @@ class RegistrationThread:
     def _get_game_module(self, port):
         """Mapping port -> game module"""
         port_mapping = {
-            'sasa2.君8866': None,
-            '78win9.pro': None,
-            'shbet800.com': shbet
+            'new88ok1.com': new88ok1,
+            'f8beta2.com': f8beta2,
+            'shbet800.com': shbet,
+            'mb663.pro': mb663,
         }
         return port_mapping.get(port)
     
