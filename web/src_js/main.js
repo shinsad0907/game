@@ -105,7 +105,52 @@ function updateAccountPreview() {
     document.getElementById('account-count').textContent = lines.length;
 }
 
-// Parse account data with proxy
+// Thêm vào phần đầu file, sau phần Global variables
+
+// Random generators
+const VN_PREFIXES = ["032","033","034","035","036","037","038","039","070","076","077","078","079",
+                     "081","082","083","084","085","088","056","058","059","052","053","054","055"];
+
+const EMAIL_DOMAINS = ["gmail.com","yahoo.com","outlook.com","hotmail.com","icloud.com",
+                       "vnmail.net","proton.me","gmx.com"];
+
+const FIRST_PARTS = ["anh","bao","binh","chau","duy","duc","gia","hai","hang","hieu","hung","huong",
+                     "khanh","lam","lan","linh","long","minh","nam","nga","ngoc","nhan","phuong",
+                     "quang","quyen","sang","son","tam","tan","thao","thanh"];
+
+const LAST_PARTS = ["nguyen","tran","le","pham","hoang","phan","vu","dang","bui","ngo","do",
+                    "truong","huynh","vo","duong","ly"];
+
+function randomPhone() {
+    const prefix = VN_PREFIXES[Math.floor(Math.random() * VN_PREFIXES.length)];
+    const rest = Array.from({length: 7}, () => Math.floor(Math.random() * 10)).join('');
+    return prefix + rest;
+}
+
+function randomEmail() {
+    const first = FIRST_PARTS[Math.floor(Math.random() * FIRST_PARTS.length)];
+    const last = LAST_PARTS[Math.floor(Math.random() * LAST_PARTS.length)];
+    const joiners = [".", "_", "", ""];
+    const joiner = joiners[Math.floor(Math.random() * joiners.length)];
+    
+    const numPart = Math.random() < 0.3 ? "" : Math.floor(Math.random() * 10000).toString();
+    
+    let randTail = "";
+    if (Math.random() < 0.45) {
+        const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        const tailLen = Math.floor(Math.random() * 3) + 1;
+        randTail = Array.from({length: tailLen}, () => 
+            chars[Math.floor(Math.random() * chars.length)]
+        ).join('');
+    }
+    
+    const local = `${first}${joiner}${last}${numPart}${randTail}`.toLowerCase().replace(/^[._-]+|[._-]+$/g, '');
+    const domain = EMAIL_DOMAINS[Math.floor(Math.random() * EMAIL_DOMAINS.length)];
+    
+    return `${local}@${domain}`;
+}
+
+// CẬP NHẬT hàm parseAccountData
 function parseAccountData(line, index) {
     const parts = line.split('|').map(p => p.trim());
     
@@ -114,19 +159,31 @@ function parseAccountData(line, index) {
         errors.push(`Không đúng 9 trường (hiện tại: ${parts.length})`);
     }
     
-    const [username, password, fullname, phone, email, bankAccount, accountNumber, withdrawCode, proxy] = parts;
+    let [username, password, fullname, phone, email, bankAccount, accountNumber, withdrawCode, proxy] = parts;
+    
+    // ✨ XỬ LÝ RANDOM CHO PHONE
+    if (!phone || phone.toLowerCase() === 'random') {
+        phone = randomPhone();
+    }
+    
+    // ✨ XỬ LÝ RANDOM CHO EMAIL
+    if (!email || email.toLowerCase() === 'random') {
+        email = randomEmail();
+    }
     
     // Validate từng trường
     if (!username) errors.push('Thiếu username');
     if (!password) errors.push('Thiếu password');
     if (!fullname) errors.push('Thiếu họ tên');
     
+    // Validate phone sau khi đã random
     if (!phone) {
         errors.push('Thiếu SĐT');
     } else if (!/^[0-9]{10,11}$/.test(phone)) {
         errors.push('SĐT không hợp lệ (10-11 số)');
     }
     
+    // Validate email sau khi đã random
     if (!email) {
         errors.push('Thiếu email');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -140,7 +197,6 @@ function parseAccountData(line, index) {
     if (!proxy) {
         errors.push('Thiếu proxy');
     } else {
-        // Validate proxy format: host:port:user:pass
         const proxyParts = proxy.split(':');
         if (proxyParts.length !== 4) {
             errors.push('Proxy không đúng định dạng (host:port:user:pass)');
@@ -161,7 +217,6 @@ function parseAccountData(line, index) {
         errors: errors
     };
 }
-
 // Preview accounts
 function previewAccounts() {
     const textarea = document.getElementById('multiple-accounts-textarea');
